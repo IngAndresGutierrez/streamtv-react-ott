@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2d6a4f"/><stop offset="1" stop-color="#081c15"/></linearGradient>
+<linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0.5" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.7"/></linearGradient></defs>
+<rect width="400" height="600" fill="url(#g)"/><ellipse cx="157.14267445728183" cy="480" rx="320" ry="150" fill="#ffd166" opacity="0.1"/><ellipse cx="155.76149271801114" cy="540" rx="320" ry="150" fill="#ffd166" opacity="0.2"/><ellipse cx="14.59835534915328" cy="600" rx="320" ry="150" fill="#ffd166" opacity="0.30000000000000004"/><rect width="400" height="600" fill="url(#s)"/><text x="32" y="480" font-family="Helvetica, Arial, sans-serif" font-weight="800" font-size="44" fill="#fff" letter-spacing="1">BUNNY · HLS</text>
+</svg>

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1b4332"/><stop offset="1" stop-color="#081c15"/></linearGradient>
+<linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0.5" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.7"/></linearGradient></defs>
+<rect width="400" height="600" fill="url(#g)"/><ellipse cx="13.164698611944914" cy="480" rx="320" ry="150" fill="#b7e4c7" opacity="0.1"/><ellipse cx="27.01398627832532" cy="540" rx="320" ry="150" fill="#b7e4c7" opacity="0.2"/><ellipse cx="383.21931483224034" cy="600" rx="320" ry="150" fill="#b7e4c7" opacity="0.30000000000000004"/><rect width="400" height="600" fill="url(#s)"/><text x="32" y="436" font-family="Helvetica, Arial, sans-serif" font-weight="800" font-size="44" fill="#fff" letter-spacing="1">BIG BUCK</text><text x="32" y="482.20000000000005" font-family="Helvetica, Arial, sans-serif" font-weight="800" font-size="44" fill="#fff" letter-spacing="1">BUNNY</text>
+</svg>
