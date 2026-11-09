@@ -1,10 +1,11 @@
 # Guion de demostración · 3 minutos
 
 **Preparación (antes de la entrevista)**
-- `npm run build && npm run preview` (o `npm run dev`) y abrir Chrome a pantalla completa en `http://localhost:4173`.
+- Abrir https://streamtv-react-ott.vercel.app (o `npm run build && npm run preview` → `http://localhost:4173`) en Chrome a pantalla completa.
+- Por defecto se ve el **televisor con el control en pantalla**. Si la pantalla compartida es pequeña o quieres el lienzo completo, usa `?tv=0`.
 - Tener abiertos el editor con `src/navigation/focusGrid.ts` y una terminal.
 - Opcional: `localStorage.clear()` en consola para partir del estado inicial.
-- No tocar el mouse durante la demo: todo con teclado.
+- Navegar con el teclado. El control en pantalla sirve si el entrevistador quiere probar con el mouse: se ilumina con cada tecla, así que el público ve qué botón "del control" se está pulsando.
 
 ---
 
@@ -35,7 +36,7 @@
 
 ### 2:40 – 3:00 · Calidad y cierre
 - Terminal: `npm run validate` (o mostrar el último resultado) y mencionar `npm run test:e2e`.
-> "59 tests unitarios y 5 E2E con Playwright que navegan solo con teclado y reproducen video real. Lo que no afirmo: compatibilidad con Tizen o webOS. Los keyCodes y el empaquetado están documentados como pendientes de validar en hardware, igual que el rendimiento en SoCs de gama baja. Ese sería mi siguiente paso."
+> "62 tests unitarios y 7 E2E con Playwright que navegan como un control remoto y reproducen video real. Lo que no afirmo: compatibilidad con Tizen o webOS. Los keyCodes y el empaquetado están documentados como pendientes de validar en hardware, igual que el rendimiento en SoCs de gama baja. Ese sería mi siguiente paso."
 
 ---
 

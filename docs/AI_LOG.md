@@ -11,7 +11,7 @@ Proyecto construido con **Claude Code** en una sesión guiada por un prompt de r
 | 2. Home + D-pad | Lógica pura `focusGrid`, mapeo de teclas, `useRemoteKeys`, `useGridNavigation` con foco DOM real, memoria de foco por pantalla. | Lint (`exhaustive-deps`, `rules-of-hooks`, a11y) y prueba manual en navegador con screenshots. |
 | 3. Player | Adaptador `PlaybackEngine` sobre Shaka con import dinámico, `usePlayer` (loading/buffering/error/retry/cleanup), autoplay con fallback a muted. | Reproducción real verificada en Chromium (VP9) y Google Chrome (H.264). |
 | 4. QoE | `QoeTracker` puro con reloj inyectable, panel D con N/A explícito. | Valores reales observados en el panel (tiempo de inicio, frames, bitrate). |
-| 5. Tests + docs | 59 tests Vitest, 5 E2E Playwright, README, guion. | `npm run validate` y `test:e2e` en verde; E2E repetido 3 veces (15/15) para descartar flakiness. |
+| 5. Tests + docs | Tests Vitest y E2E Playwright, README, guion. | `npm run validate` y `test:e2e` en verde; E2E repetido 3 veces (15/15) para descartar flakiness. |
 
 ## Decisiones asistidas por IA (y por qué se aceptaron)
 
@@ -27,6 +27,12 @@ Proyecto construido con **Claude Code** en una sesión guiada por un prompt de r
 2. **Bug de retry** (encontrado por el E2E): tras un error, al reintentar el player quedaba en "loading". Se reprodujo con un script (`video.src` vacío) y se formuló una hipótesis: el `destroy()` asíncrono del engine anterior desconectaba el MediaSource del nuevo. La corrección serializa el teardown y tiene test de regresión.
 3. **Lint**: `setState` dentro de un efecto se reemplazó por el patrón de ajuste durante el render (`resetKey`); roles ARIA se cambiaron por elementos semánticos (`ul/li`, `progress`).
 4. **UX**: las leyendas de teclas hacían scroll con el contenido y el rail ignoraba el área segura; se corrigió tras revisar los screenshots.
+5. **CSS roto por una edición automática**: al eliminar una regla con un script quedó un fragmento `.card:focus` pegado a la regla `.detail`, que perdió su `position: absolute`. La página de detalle se veía descentrada, también en la versión ya desplegada. Se detectó al regenerar los screenshots y se corrigió; desde entonces un E2E verifica que el detalle ocupe todo el lienzo y que el póster quede centrado.
+
+## Iteraciones posteriores
+
+- **Interfaz tipo televisor** (a pedido): marco de TV con soporte, sala oscura y control remoto en pantalla que reutiliza la misma vía de entrada (eventos de teclado). Se añadió el modo kiosko `?tv=0`. Verificado con screenshots en 1920×1080 y 1440×900, y con pruebas: 62 unitarios y 7 E2E.
+- **Despliegue** en Vercel, verificado en la URL pública con reproducción real.
 
 ## Validaciones humanas pendientes / recomendadas
 

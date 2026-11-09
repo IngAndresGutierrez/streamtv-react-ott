@@ -2,13 +2,15 @@
 
 MVP de una aplicación de streaming pensada para **control remoto (D-pad)**, que se ejecuta en Chrome como simulación de Smart TV. Prioriza ingeniería, reproducción real y calidad sobre cantidad de funcionalidades.
 
-| Home | Detalle | Reproductor + QoE |
-| --- | --- | --- |
-| ![Home](docs/screenshots/01-home.png) | ![Detalle](docs/screenshots/03-detail.png) | ![Player](docs/screenshots/04-player-diagnostics.png) |
+![StreamTV dentro del televisor simulado, con el control remoto en pantalla](docs/screenshots/01-home.png)
+
+| Catálogo con foco | Detalle | Reproductor + QoE (tecla D) | Error y reintento |
+| --- | --- | --- | --- |
+| ![Rails](docs/screenshots/02-rails-focus.png) | ![Detalle](docs/screenshots/03-detail.png) | ![Player](docs/screenshots/04-player-diagnostics.png) | ![Error](docs/screenshots/05-player-error.png) |
 
 - **React 19 + TypeScript + Vite** · CSS convencional, sin librerías visuales
 - **Shaka Player 5** para MPEG-DASH y HLS, cargado bajo demanda
-- **Vitest + Testing Library** (59 tests) · **Playwright** (5 E2E con reproducción real)
+- **Vitest + Testing Library** (62 tests) · **Playwright** (7 E2E con reproducción real)
 - Catálogo mock local, sin backend, sin autenticación, sin DRM
 
 ---
@@ -36,7 +38,18 @@ npm run dev          # http://localhost:5173
 | `npm run validate` | typecheck + lint + test + build |
 | `npm run art` | Regenera el arte SVG del catálogo |
 
-> Para la demo usa una ventana de Chrome a pantalla completa (F11 / ⌃⌘F). La UI está diseñada sobre un lienzo fijo de 1920×1080 que se escala con letterbox, como un panel de TV.
+### Modo televisor y modo kiosko
+
+Por defecto la app se muestra **dentro de un televisor simulado** (marco, soporte y sala oscura) con un **control remoto en pantalla** a la derecha. El control se puede usar con el mouse: envía exactamente los mismos eventos de teclado que un control físico, así que la app tiene una sola vía de entrada. Además, se ilumina cuando pulsas la tecla equivalente en el teclado.
+
+| URL | Modo |
+| --- | --- |
+| `/` | Televisor + control remoto en pantalla (ideal para presentar) |
+| `/?tv=0` | Solo el lienzo 16:9 a pantalla completa (kiosko, o el navegador de una TV real) |
+
+En ambos modos la UI se diseña sobre un lienzo fijo de 1920×1080 que se escala para caber en la ventana, como un panel de TV. Para la demo usa Chrome a pantalla completa (F11 / ⌃⌘F).
+
+El control en pantalla es un dispositivo de simulación: tiene `aria-hidden`, nunca recibe foco (`tabIndex=-1` y `preventDefault` en `mousedown`) y no altera el foco D-pad de la app.
 
 ## Mapa de controles
 
@@ -64,6 +77,7 @@ src/
 │   ├── focusGrid.ts          lógica espacial PURA (mover, clamp, memoria de columna)
 │   ├── focusMemory.ts        posición por pantalla para restaurar el foco al volver
 │   ├── useRemoteKeys.ts      listener único en window, con cleanup al desmontar
+│   ├── virtualRemote.ts      botones del control en pantalla → mismos eventos de teclado
 │   └── useGridNavigation.ts  roving focus: sincroniza estado lógico ↔ DOM focus
 ├── player/       Reproducción y métricas, sin JSX
 │   ├── shakaEngine.ts        adaptador Shaka → interfaz PlaybackEngine (import dinámico)
@@ -71,7 +85,7 @@ src/
 │   ├── qoe.ts                QoeTracker puro con reloj inyectable
 │   ├── useDiagnostics.ts     polling de métricas solo con el panel abierto
 │   └── format.ts             formateo; valores desconocidos → "N/A"
-├── hooks/        useScreenStack (historial de pantallas), useStageScale (lienzo 16:9)
+├── hooks/        useScreenStack (historial de pantallas), useFitScale (escala lienzo/escena)
 ├── components/   Componentes visuales sin estado de foco (reciben getItemProps)
 └── pages/        HomePage, DetailPage, PlayerPage: componen datos + navegación + UI
 ```
@@ -129,20 +143,23 @@ Los títulos ficticios del catálogo ("Código Andino", "Horizonte Rojo"…) rep
 
 ## Pruebas
 
-**Unitarias e integración (Vitest + RTL), 59 tests:**
+**Unitarias e integración (Vitest + RTL), 62 tests:**
 - `focusGrid`: movimiento, bordes sin wrap, filas vacías, clamp, memoria de columna.
 - `keys`: teclado, teclas multimedia, keyCodes de Tizen/webOS, atajos ignorados.
 - `useGridNavigation`: foco DOM real, roving tabindex, Enter sin doble click, Back, **listener eliminado al desmontar**, restauración por `screenKey`, rejilla que se reduce, `resetKey`, recuperación del foco perdido.
 - `QoeTracker`: startup, rebuffering (excluye el inicial, incluye el en curso), errores, retry.
 - `PlayerPage` con engine falso: loading, error accesible con Reintentar enfocado, retry, **teardown serializado**, panel D con N/A, `destroy()` al desmontar.
 - `App`: Home → Detalle → Volver conserva el foco; Detalle → Player → Volver; nombres accesibles.
+- `RemoteControl`: envía los mismos eventos que un control físico, no roba el foco, queda fuera del árbol de accesibilidad y se ilumina con las teclas físicas.
 
-**E2E (Playwright, Chromium, solo teclado), 5 tests:**
+**E2E (Playwright, Chromium), 7 tests:**
 1. Navegar el catálogo, abrir detalle y volver conservando el foco (y la memoria de columna).
 2. Reproducir **video real** con Shaka (Sintel VP9), comprobar que `currentTime` avanza, pausar, seek +10 s, panel QoE con tiempo de inicio real, volver con el foco restaurado.
 3. Estado de error con manifiesto 404: `role="alert"`, Reintentar enfocado, volver.
 4. Retry tras fallo de red transitorio (interceptado con `page.route`), recuperando la reproducción.
-5. Accesibilidad básica: `lang`, landmarks, nombres accesibles, un único elemento en el tab order, foco visible.
+5. El control remoto en pantalla, usado con el mouse, navega, abre el detalle y vuelve conservando el foco.
+6. El modo kiosko (`?tv=0`) muestra solo el lienzo, sin televisor ni control.
+7. Accesibilidad básica: `lang`, landmarks, nombres accesibles, un único elemento en el tab order, foco visible.
 
 > El Chromium de Playwright no incluye decodificadores H.264/AAC; por eso los E2E de reproducción usan Sintel, que también tiene VP9/Opus. Los streams H.264 se verificaron manualmente en Google Chrome.
 
@@ -155,7 +172,7 @@ Los títulos ficticios del catálogo ("Código Andino", "Horizonte Rojo"…) rep
 - "Continuar viendo" persistido en `localStorage` (con fallback en memoria).
 
 **Simulado o fuera de alcance:**
-- El control remoto se simula con el teclado del PC.
+- El control remoto se simula con el teclado del PC o con el control en pantalla; el televisor y la sala son un marco visual.
 - Catálogo, artes y progreso inicial son mock locales; no hay backend.
 - **Sin DRM** (Widevine/PlayReady): no está implementado ni simulado. El panel lo indica.
 - Volumen de la app (`video.volume`); en TV suele controlarlo el sistema.

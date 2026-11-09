@@ -27,6 +27,14 @@ test('navigates the catalog with the D-pad, opens a detail and returns keeping f
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Mareas de Neón');
   await expect(focused(page)).toHaveAttribute('data-testid', 'detail-play');
 
+  // Layout guard: the detail screen fills the TV canvas and its poster is vertically centred.
+  const stageBox = (await page.locator('.stage').boundingBox())!;
+  const detailBox = (await page.getByTestId('detail-page').boundingBox())!;
+  expect(Math.abs(detailBox.height - stageBox.height)).toBeLessThan(2);
+  const posterBox = (await page.locator('.detail__poster').boundingBox())!;
+  const posterCentre = posterBox.y + posterBox.height / 2;
+  expect(Math.abs(posterCentre - (stageBox.y + stageBox.height / 2))).toBeLessThan(stageBox.height * 0.05);
+
   await press(page, 'Escape');
   await expect(page.getByTestId('home-page')).toBeVisible();
   await expect(focused(page)).toHaveAttribute('data-testid', 'card-mareas-de-neon');
@@ -113,6 +121,28 @@ test('retry recovers playback after a transient network failure', async ({ page 
   await press(page, 'd');
   // The failed attempt is still recorded by the QoE tracker.
   await expect(page.getByTestId('diag-errors')).not.toHaveText('0');
+});
+
+test('the on-screen remote drives the same navigation with the mouse', async ({ page }) => {
+  const remote = (id: string) => page.getByTestId(`remote-${id}`).click();
+  await expect(page.getByTestId('remote-control')).toBeVisible();
+
+  await remote('down');
+  await remote('down');
+  await remote('right');
+  await expect(focused(page)).toHaveAttribute('data-testid', 'card-ultima-frecuencia');
+
+  await remote('select');
+  await expect(page.getByTestId('detail-page')).toBeVisible();
+  await remote('back');
+  await expect(focused(page)).toHaveAttribute('data-testid', 'card-ultima-frecuencia');
+});
+
+test('kiosk mode (?tv=0) renders only the TV canvas', async ({ page }) => {
+  await page.goto('/?tv=0');
+  await expect(page.getByTestId('home-page')).toBeVisible();
+  await expect(page.getByTestId('remote-control')).toHaveCount(0);
+  await expect(focused(page)).toHaveAttribute('data-testid', 'hero-play');
 });
 
 test('basic accessibility: language, landmarks, names and visible focus', async ({ page }) => {
